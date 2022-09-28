@@ -4,7 +4,7 @@ info:
   description: "This specification contains two interfaces related to the data read by dimension, weighing and image recognition devices, such as DWS tunnels, cameras and volume scanners.\nThe kafka topic exposes ReadingEvent containing data captured at the DWS-Tunnel or by the operator during manual bulk coding. \nThe Mqtt topics define the interface between the a coding client (e.g. Manual Coding Bulk) and a device (e.g. a volume scanner).\n"
   contact:
     name: delcorpochd
-  version: 5.1.0-feature-PZS-7265-sprintgoal-add-blockid-to-readingdata-for-ident.3
+  version: 5.1.0-feature-PZS-7265-sprintgoal-add-blockid-to-readingdata-for-ident.4
 host: 'server:8080'
 basePath: 'Kafka, MQTT'
 paths:
