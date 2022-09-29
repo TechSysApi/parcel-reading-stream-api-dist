@@ -4,7 +4,7 @@ info:
   description: "This specification contains two interfaces related to the data read by dimension, weighing and image recognition devices, such as DWS tunnels, cameras and volume scanners.\nThe kafka topic exposes ReadingEvent containing data captured at the DWS-Tunnel or by the operator during manual bulk coding. \nThe Mqtt topics define the interface between the a coding client (e.g. Manual Coding Bulk) and a device (e.g. a volume scanner).\n"
   contact:
     name: delcorpochd
-  version: 5.0.0
+  version: 5.1.0
 host: 'server:8080'
 basePath: 'Kafka, MQTT'
 paths:
@@ -352,6 +352,10 @@ definitions:
     type: string
     description: "<a href=\"https://swagger.io/docs/specification/data-models/data-types/#string\">String @format date-time</a>,\nas defined by <a href=\"https://tools.ietf.org/html/rfc3339#section-5.6\">RFC 3339, section 5.6</a>,\nfor example: <code>2014-05-22T10:42:42.542+00:00</code>."
     format: date-time
+  UUID:
+    type: string
+    description: "<a href=\"https://swagger.io/docs/specification/data-models/data-types/#string\">String @format uuid</a>\n(even '@format uuid' is not specified)."
+    format: uuid
   ReadEvent:
     type: object
     properties:
@@ -434,6 +438,9 @@ definitions:
         items:
           $ref: 'InformationCarrier'
         description: 'List with all barcodes read.'
+      blockId:
+        $ref: 'UUID'
+        description: 'Identifier to track a group of parcels.'
     additionalProperties: false
   RequestState:
     type: string
