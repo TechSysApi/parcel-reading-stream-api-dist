@@ -4,7 +4,7 @@ info:
   description: "This specification contains two interfaces related to the data read by dimension, weighing and image recognition devices, such as DWS tunnels, cameras and volume scanners.\nThe kafka topic exposes ReadingEvent containing data captured at the DWS-Tunnel or by the operator during manual bulk coding. \nThe Mqtt topics define the interface between the a coding client (e.g. Manual Coding Bulk) and a device (e.g. a volume scanner).\n"
   contact:
     name: delcorpochd
-  version: 5.2.0
+  version: 5.2.0-feature-add-processpoint-unconstrain-sourceid.3
 host: 'server:8080'
 basePath: 'Kafka, MQTT'
 paths:
@@ -18,7 +18,7 @@ paths:
         '200':
           description: null
           schema: {type: array, $ref: 'ReadEvent'}
-  '/{locationKey}/reading/v5/coding/read:request/{srcSystem}/{srcInstance}/{dstSystem}/{dstInstance}/{conversationId}':
+  '/{sortingUnitKey}/reading/v5/coding/read:request/{srcSystem}/{srcInstance}/{dstSystem}/{dstInstance}/{conversationId}':
     post:
       summary: 'Requests the physical properties, images and barcodes of a mailpiece'
       description: null
@@ -26,9 +26,9 @@ paths:
         - Mqtt
       parameters:
         -
-          name: locationKey
+          name: sortingUnitKey
           in: path
-          description: 'Identifier of the sorting center'
+          description: 'Identifier of the sorting unit'
           type: string
         -
           name: srcSystem
@@ -63,7 +63,7 @@ paths:
       responses:
         default:
           schema: {$ref: 'ReadRequest'}
-  '/{locationKey}/reading/v5/device/read:request:status/{srcSystem}/{srcInstance}/{dstSystem}/{dstInstance}/{conversationId}':
+  '/{sortingUnitKey}/reading/v5/device/read:request:status/{srcSystem}/{srcInstance}/{dstSystem}/{dstInstance}/{conversationId}':
     post:
       summary: 'The status of the read:request'
       description: 'The status of the read:request'
@@ -71,9 +71,9 @@ paths:
         - Mqtt
       parameters:
         -
-          name: locationKey
+          name: sortingUnitKey
           in: path
-          description: 'Identifier of the sorting center'
+          description: 'Identifier of the sorting unit'
           type: string
         -
           name: srcSystem
@@ -108,7 +108,7 @@ paths:
       responses:
         default:
           schema: {$ref: 'RequestStatus'}
-  '/{locationKey}/reading/v5/device/read-event/{srcSystem}/{srcInstance}/{dstSystem}/{dstInstance}/{conversationId}':
+  '/{sortingUnitKey}/reading/v5/device/read-event/{srcSystem}/{srcInstance}/{dstSystem}/{dstInstance}/{conversationId}':
     post:
       summary: 'The read-event from by the device'
       description: 'Data Captured by the device upon a read request'
@@ -116,9 +116,9 @@ paths:
         - Mqtt
       parameters:
         -
-          name: locationKey
+          name: sortingUnitKey
           in: path
-          description: 'Identifier of the sorting center'
+          description: 'Identifier of the sorting unit'
           type: string
         -
           name: srcSystem
@@ -369,7 +369,14 @@ definitions:
         pattern: '[A-Z]{2}[0-9]{9}[A-Z]{2}'
       sortCenter:
         $ref: 'Location'
-        description: 'Sort center where the reading ocurred (e.g. Daillens, Haerkingen).'
+        description: "Sort center where the reading ocurred (e.g. Daillens, Haerkingen).\n[DEPRECATED] to be removed as soon as sortingUnitKey is always filled."
+      sortingUnitKey:
+        type: string
+        description: "Unique identifier of the sorting unit at a specific location.\nACTION: field will be mandatory"
+        maxLength: 200
+      locationKey:
+        type: string
+        description: "Unique identifier of the sorting center.\nACTION: field will be mandatory"
       readingData:
         $ref: 'ReadingData'
         description: 'Data captured by the dimension and weighing devices.'
@@ -413,7 +420,12 @@ definitions:
       sourceId:
         type: string
         description: 'Refers to a module id as event-source (e.g. DWS02, CLC19).'
-        pattern: '[A-Z]{3}[0-9]{2}'
+      processPoint:
+        type: string
+        description: 'The location where the information was generated. (Siehe Anlagen Bezeichnungskonzept)'
+      concatenatedLineId:
+        type: string
+        description: "Combination of SourceId and Source\n[DEPRECATED] to be removed as soon as processPoint is always filled."
       mailpieceType:
         $ref: 'MailpieceType'
         description: 'Type of mailpiece.'
