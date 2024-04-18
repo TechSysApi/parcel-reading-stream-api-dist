@@ -4,7 +4,7 @@ info:
   description: "This specification contains two interfaces related to the data read by dimension, weighing and image recognition devices, such as DWS tunnels, cameras and volume scanners.\nThe kafka topic exposes ReadingEvent containing data captured at the DWS-Tunnel or by the operator during manual bulk coding. \nThe Mqtt topics define the interface between the a coding client (e.g. Manual Coding Bulk) and a device (e.g. a volume scanner).\n"
   contact:
     name: delcorpochd
-  version: 5.3.0-feature-uniquely-identify-infeed-line.1
+  version: 5.3.0-feature-uniquely-identify-infeed-line.4
 host: 'server:8080'
 basePath: 'Kafka, MQTT'
 paths:
@@ -17,7 +17,7 @@ paths:
       responses:
         '200':
           description: null
-          schema: {type: array, $ref: 'ReadEvent'}
+          schema: {type: array, $ref: 'MailpieceReadEvent'}
   '/{sortingUnitKey}/reading/v5/coding/read:request/{srcSystem}/{srcInstance}/{dstSystem}/{dstInstance}/{conversationId}':
     post:
       summary: 'Requests the physical properties, images and barcodes of a mailpiece'
@@ -303,6 +303,39 @@ definitions:
         description: "Whether the mailpiece dimension is legal for trade.\nThe measurement device was calibrated."
     additionalProperties: false
     description: 'Dimensions related information on the mailpiece.'
+  DateTime:
+    type: string
+    description: "<a href=\"https://swagger.io/docs/specification/data-models/data-types/#string\">String @format date-time</a>,\nas defined by <a href=\"https://tools.ietf.org/html/rfc3339#section-5.6\">RFC 3339, section 5.6</a>,\nfor example: <code>2014-05-22T10:42:42.542+00:00</code>."
+    format: date-time
+  UUID:
+    type: string
+    description: "<a href=\"https://swagger.io/docs/specification/data-models/data-types/#string\">String @format uuid</a>\n(even '@format uuid' is not specified)."
+    format: uuid
+  MailpieceReadEvent:
+    type: object
+    properties:
+      mailpieceId:
+        type: string
+        description: 'Id of the Mailpiece.'
+        maxLength: 200
+      globalMailpieceId:
+        type: string
+        description: "International ID of the mailpiece.\nExample: EP923689367CH\nValidation:"
+        pattern: '[A-Z]{2}[0-9]{9}[A-Z]{2}'
+      sortCenter:
+        $ref: 'Location'
+        description: "Sort center where the reading ocurred (e.g. Daillens, Haerkingen).\n[DEPRECATED] to be removed as soon as sortingUnitKey is always filled."
+      sortingUnit:
+        $ref: 'SortingUnit'
+        description: "Unique identifier of the sorting unit at a specific location.\nACTION: field will be mandatory"
+        maxLength: 200
+      readingData:
+        $ref: 'ReadingData'
+        description: 'Data captured by the dimension and weighing devices.'
+    required:
+      - readingData
+    additionalProperties: false
+    description: 'Physical attributes, images and barcodes of a mailpiece.'
   MailpieceType:
     type: string
     enum:
@@ -348,14 +381,6 @@ definitions:
         description: '**DEPRECATED** LFT-Status (Legal for Trade) enum'
     additionalProperties: false
     description: 'All the physical properties of a Parcel.'
-  DateTime:
-    type: string
-    description: "<a href=\"https://swagger.io/docs/specification/data-models/data-types/#string\">String @format date-time</a>,\nas defined by <a href=\"https://tools.ietf.org/html/rfc3339#section-5.6\">RFC 3339, section 5.6</a>,\nfor example: <code>2014-05-22T10:42:42.542+00:00</code>."
-    format: date-time
-  UUID:
-    type: string
-    description: "<a href=\"https://swagger.io/docs/specification/data-models/data-types/#string\">String @format uuid</a>\n(even '@format uuid' is not specified)."
-    format: uuid
   ReadEvent:
     type: object
     properties:
@@ -370,13 +395,6 @@ definitions:
       sortCenter:
         $ref: 'Location'
         description: "Sort center where the reading ocurred (e.g. Daillens, Haerkingen).\n[DEPRECATED] to be removed as soon as sortingUnitKey is always filled."
-      sortingUnitKey:
-        type: string
-        description: "Unique identifier of the sorting unit at a specific location.\nACTION: field will be mandatory"
-        maxLength: 200
-      locationKey:
-        type: string
-        description: "Unique identifier of the sorting center.\nACTION: field will be mandatory"
       readingData:
         $ref: 'ReadingData'
         description: 'Data captured by the dimension and weighing devices.'
@@ -420,12 +438,7 @@ definitions:
       sourceId:
         type: string
         description: 'Refers to a module id as event-source (e.g. DWS02, CLC19).'
-      processPoint:
-        type: string
-        description: 'The location where the information was generated. (Siehe Anlagen Bezeichnungskonzept)'
-      concatenatedLineId:
-        type: string
-        description: "Combination of SourceId and Source\n[DEPRECATED] to be removed as soon as processPoint is always filled."
+        pattern: '[A-Z]{3}[0-9]{2}'
       mailpieceType:
         $ref: 'MailpieceType'
         description: 'Type of mailpiece.'
@@ -507,3 +520,16 @@ definitions:
       - captureImage
     additionalProperties: false
     description: 'Different request types.'
+  SortingUnit:
+    type: object
+    properties:
+      sortingUnitKey:
+        type: string
+        description: 'Unique key identifying the sorting unit.'
+        maxLength: 200
+      locationKey:
+        type: string
+        description: 'Unique key identifying the location.'
+        maxLength: 200
+    additionalProperties: false
+    description: 'Sorting unit where the mailpiece was being read.'
