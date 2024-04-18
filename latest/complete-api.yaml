@@ -4,7 +4,7 @@ info:
   description: "This specification contains two interfaces related to the data read by dimension, weighing and image recognition devices, such as DWS tunnels, cameras and volume scanners.\nThe kafka topic exposes ReadingEvent containing data captured at the DWS-Tunnel or by the operator during manual bulk coding. \nThe Mqtt topics define the interface between the a coding client (e.g. Manual Coding Bulk) and a device (e.g. a volume scanner).\n"
   contact:
     name: delcorpochd
-  version: 5.3.0-feature-uniquely-identify-infeed-line.7
+  version: 5.3.0-feature-uniquely-identify-infeed-line.8
 host: 'server:8080'
 basePath: 'Kafka, MQTT'
 paths:
@@ -327,10 +327,10 @@ definitions:
         description: "Sort center where the reading ocurred (e.g. Daillens, Haerkingen).\n[DEPRECATED] to be removed as soon as sortingUnitKey is always filled."
       processPoint:
         type: string
-        description: "proccesPoint containing identification of a coding station / supply line\nThe attribute adheres to the\nBezeichnungskonzept RPZ (RL_RPZ_Bezeichnungskonzept_V04.04.pdf) for new installations of sorting units and yard equipment\nBezeichnungskonzept PP2000 (SOE Bezeichnungskonzept V2.1.pdf) old sorting units based on the standards of program PP2000"
-      concatenatedLineId:
+        description: "processPoint containing identification of a coding station / supply line\nThe attribute adheres to the\nBezeichnungskonzept RPZ (RL_RPZ_Bezeichnungskonzept_V04.04.pdf) for new installations of sorting units and yard equipment\nBezeichnungskonzept PP2000 (SOE Bezeichnungskonzept V2.1.pdf) old sorting units based on the standards of program PP2000"
+      concatenatedSupplyLineId:
         type: string
-        description: "Combination of SourceId and Source\n[DEPRECATED] to be removed as soon as processPoint is always filled."
+        description: "concatenated identification of a coding station / supply line extracted from the PP2000 fields Header.From and ERDAT.Ort\ne.g. \"CLC31+BCR02\"\n[DEPRECATED] to be removed as soon as processPoint is always filled."
       sortingUnit:
         $ref: 'SortingUnit'
         description: "Unique identifier of the sorting unit at a specific location.\nACTION: field will be mandatory"
