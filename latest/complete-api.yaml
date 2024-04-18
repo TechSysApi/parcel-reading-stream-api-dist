@@ -4,7 +4,7 @@ info:
   description: "This specification contains two interfaces related to the data read by dimension, weighing and image recognition devices, such as DWS tunnels, cameras and volume scanners.\nThe kafka topic exposes ReadingEvent containing data captured at the DWS-Tunnel or by the operator during manual bulk coding. \nThe Mqtt topics define the interface between the a coding client (e.g. Manual Coding Bulk) and a device (e.g. a volume scanner).\n"
   contact:
     name: delcorpochd
-  version: 5.3.0-feature-uniquely-identify-infeed-line.4
+  version: 5.3.0-feature-uniquely-identify-infeed-line.6
 host: 'server:8080'
 basePath: 'Kafka, MQTT'
 paths:
@@ -330,12 +330,61 @@ definitions:
         description: "Unique identifier of the sorting unit at a specific location.\nACTION: field will be mandatory"
         maxLength: 200
       readingData:
-        $ref: 'ReadingData'
+        $ref: 'MailpieceReadingData'
         description: 'Data captured by the dimension and weighing devices.'
     required:
       - readingData
     additionalProperties: false
     description: 'Physical attributes, images and barcodes of a mailpiece.'
+  MailpieceReadingData:
+    type: object
+    properties:
+      readingDataId:
+        type: string
+        description: 'Unique Id related to this set of data.'
+      readingTimestamp:
+        $ref: 'DateTime'
+        description: 'Timestamp of data collection.'
+      multipleMailpieceIdRecognized:
+        type: boolean
+        description: 'True when multiple identcodes were recognized by the camera.'
+      sourceId:
+        type: string
+        description: 'Refers to a module id as event-source (e.g. DWS02, CLC19).'
+      processPoint:
+        type: string
+        description: "proccesPoint containing identification of a coding station / supply line\nThe attribute adheres to the\nBezeichnungskonzept RPZ (RL_RPZ_Bezeichnungskonzept_V04.04.pdf) for new installations of sorting units and yard equipment\nBezeichnungskonzept PP2000 (SOE Bezeichnungskonzept V2.1.pdf) old sorting units based on the standards of program PP2000"
+      concatenatedLineId:
+        type: string
+        description: "Combination of SourceId and Source\n[DEPRECATED] to be removed as soon as processPoint is always filled."
+      mailpieceType:
+        $ref: 'MailpieceType'
+        description: 'Type of mailpiece.'
+      boxId:
+        type: number
+        description: "Identifies the DX-Box.\nFirst two digits: Type of box: \"45\" for ThermoCare box.\nLast six digits: Serial number of the box (example: 45093456)"
+        maxLength: 8
+      images:
+        type: array
+        items:
+          $ref: 'Image'
+        description: 'The images captured during coding.'
+      physicalProperties:
+        $ref: 'PhysicalProperties'
+        description: "Physical information about the mailpiece.\nIt includes information on weight and dimension."
+      conveyingAid:
+        type: number
+        description: "Type of conveying aid (used in the regional parcel centers).\nFormat: First two digits: type of aid.\nLast four digits: weight of the aid in grams.\nExample: 020450"
+        maxLength: 6
+      barcodeList:
+        type: array
+        items:
+          $ref: 'InformationCarrier'
+        description: 'List with all barcodes read.'
+      blockId:
+        $ref: 'UUID'
+        description: 'Identifier to track a group of parcels.'
+    additionalProperties: false
   MailpieceType:
     type: string
     enum:
@@ -394,7 +443,7 @@ definitions:
         pattern: '[A-Z]{2}[0-9]{9}[A-Z]{2}'
       sortCenter:
         $ref: 'Location'
-        description: "Sort center where the reading ocurred (e.g. Daillens, Haerkingen).\n[DEPRECATED] to be removed as soon as sortingUnitKey is always filled."
+        description: 'Sort center where the reading ocurred (e.g. Daillens, Haerkingen).'
       readingData:
         $ref: 'ReadingData'
         description: 'Data captured by the dimension and weighing devices.'
