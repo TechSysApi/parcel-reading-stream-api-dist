@@ -4,7 +4,7 @@ info:
   description: "This specification contains two interfaces related to the data read by dimension, weighing and image recognition devices, such as DWS tunnels, cameras and volume scanners.\nThe kafka topic exposes ReadingEvent containing data captured at the DWS-Tunnel or by the operator during manual bulk coding. \nThe Mqtt topics define the interface between the a coding client (e.g. Manual Coding Bulk) and a device (e.g. a volume scanner).\n"
   contact:
     name: delcorpochd
-  version: 5.3.0-feature-uniquely-identify-infeed-line.8
+  version: 5.3.0-feature-uniquely-identify-infeed-line.9
 host: 'server:8080'
 basePath: 'Kafka, MQTT'
 paths:
@@ -324,7 +324,7 @@ definitions:
         pattern: '[A-Z]{2}[0-9]{9}[A-Z]{2}'
       sortCenter:
         $ref: 'Location'
-        description: "Sort center where the reading ocurred (e.g. Daillens, Haerkingen).\n[DEPRECATED] to be removed as soon as sortingUnitKey is always filled."
+        description: "Sort center where the reading ocurred (e.g. Daillens, Haerkingen).\n[DEPRECATED] to be removed as soon as sortingUnit is always filled."
       processPoint:
         type: string
         description: "processPoint containing identification of a coding station / supply line\nThe attribute adheres to the\nBezeichnungskonzept RPZ (RL_RPZ_Bezeichnungskonzept_V04.04.pdf) for new installations of sorting units and yard equipment\nBezeichnungskonzept PP2000 (SOE Bezeichnungskonzept V2.1.pdf) old sorting units based on the standards of program PP2000"
@@ -400,7 +400,11 @@ definitions:
         pattern: '[A-Z]{2}[0-9]{9}[A-Z]{2}'
       sortCenter:
         $ref: 'Location'
-        description: 'Sort center where the reading ocurred (e.g. Daillens, Haerkingen).'
+        description: "Sort center where the reading ocurred (e.g. Daillens, Haerkingen).\n[DEPRECATED] to be removed as soon as sortingUnit is always filled."
+      sortingUnit:
+        $ref: 'SortingUnit'
+        description: "Unique identifier of the sorting unit at a specific location.\nACTION: field will be mandatory"
+        maxLength: 200
       readingData:
         $ref: 'ReadingData'
         description: 'Data captured by the dimension and weighing devices.'
