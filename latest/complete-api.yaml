@@ -1,12 +1,12 @@
 swagger: '2.0'
 info:
   title: 'Logistics Parcel Reading Stream API'
-  description: "This specification contains two interfaces related to the data read by dimension, weighing and image recognition devices, such as DWS tunnels, cameras and volume scanners.\nThe kafka topic exposes ReadingEvent containing data captured at the DWS-Tunnel or by the operator during manual bulk coding. \nThe Mqtt topics define the interface between the a coding client (e.g. Manual Coding Bulk) and a device (e.g. a volume scanner).\n"
+  description: "The kafka topic exposes ReadingEvent containing data captured at the DWS-Tunnel or by the operator during manual bulk coding like dimension, weighing and image recognition.\n"
   contact:
     name: delcorpochd
-  version: 5.3.0-feature-uniquely-identify-infeed-line.9
+  version: 5.3.0-feature-uniquely-identify-infeed-line.10
 host: 'server:8080'
-basePath: 'Kafka, MQTT'
+basePath: Kafka
 paths:
   logistics.parcel.reading.Mailpiece-event:
     get:
@@ -17,142 +17,7 @@ paths:
       responses:
         '200':
           description: null
-          schema: {type: array, $ref: 'MailpieceReadEvent'}
-  '/{sortingUnitKey}/reading/v5/coding/read:request/{srcSystem}/{srcInstance}/{dstSystem}/{dstInstance}/{conversationId}':
-    post:
-      summary: 'Requests the physical properties, images and barcodes of a mailpiece'
-      description: null
-      tags:
-        - Mqtt
-      parameters:
-        -
-          name: sortingUnitKey
-          in: path
-          description: 'Identifier of the sorting unit'
-          type: string
-        -
-          name: srcSystem
-          in: path
-          description: '3-letter uppercase name identifying the system issuing the message'
-          type: string
-          default: MCB
-        -
-          name: srcInstance
-          in: path
-          description: 'two-digit padded number identifying the system instance issuing the message'
-          type: string
-          default: '01'
-        -
-          name: destSystem
-          in: path
-          description: '3-letter uppercase name identifying the system receiving the message'
-          type: string
-          default: VOL
-        -
-          name: destInstance
-          in: path
-          description: 'two-digit padded number identifying the system instance receiving the message'
-          type: string
-          default: '01'
-        -
-          name: conversationId
-          in: path
-          description: 'ID included in the read-event and request-status topics in order to correlate the messages'
-          type: string
-          default: '12345'
-      responses:
-        default:
-          schema: {$ref: 'ReadRequest'}
-  '/{sortingUnitKey}/reading/v5/device/read:request:status/{srcSystem}/{srcInstance}/{dstSystem}/{dstInstance}/{conversationId}':
-    post:
-      summary: 'The status of the read:request'
-      description: 'The status of the read:request'
-      tags:
-        - Mqtt
-      parameters:
-        -
-          name: sortingUnitKey
-          in: path
-          description: 'Identifier of the sorting unit'
-          type: string
-        -
-          name: srcSystem
-          in: path
-          description: '3-letter uppercase name identifying the system issuing the message'
-          type: string
-          default: MCB
-        -
-          name: srcInstance
-          in: path
-          description: 'two-digit padded number identifying the system instance issuing the message'
-          type: string
-          default: '01'
-        -
-          name: destSystem
-          in: path
-          description: '3-letter uppercase name identifying the system receiving the message'
-          type: string
-          default: VOL
-        -
-          name: destInstance
-          in: path
-          description: 'two-digit padded number identifying the system instance receiving the message'
-          type: string
-          default: '01'
-        -
-          name: conversationId
-          in: path
-          description: 'ID to correlate the status with a request'
-          type: string
-          default: '12345'
-      responses:
-        default:
-          schema: {$ref: 'RequestStatus'}
-  '/{sortingUnitKey}/reading/v5/device/read-event/{srcSystem}/{srcInstance}/{dstSystem}/{dstInstance}/{conversationId}':
-    post:
-      summary: 'The read-event from by the device'
-      description: 'Data Captured by the device upon a read request'
-      tags:
-        - Mqtt
-      parameters:
-        -
-          name: sortingUnitKey
-          in: path
-          description: 'Identifier of the sorting unit'
-          type: string
-        -
-          name: srcSystem
-          in: path
-          description: '3-letter uppercase name identifying the system issuing the message'
-          type: string
-          default: ASL
-        -
-          name: srcInstance
-          in: path
-          description: 'two-digit padded number identifying the system instance issuing the message'
-          type: string
-          default: '01'
-        -
-          name: destSystem
-          in: path
-          description: '3-letter uppercase name identifying the system receiving the message'
-          type: string
-          default: VOL
-        -
-          name: destInstance
-          in: path
-          description: 'two-digit padded number identifying the system instance receiving the message'
-          type: string
-          default: '01'
-        -
-          name: conversationId
-          in: path
-          description: 'ID to correlate the Event with a request'
-          type: string
-          default: '12345'
-      responses:
-        default:
-          schema: {$ref: 'ReadEvent'}
+          schema: {type: array, $ref: 'ReadEvent'}
 definitions:
   Image:
     type: object
@@ -303,45 +168,6 @@ definitions:
         description: "Whether the mailpiece dimension is legal for trade.\nThe measurement device was calibrated."
     additionalProperties: false
     description: 'Dimensions related information on the mailpiece.'
-  DateTime:
-    type: string
-    description: "<a href=\"https://swagger.io/docs/specification/data-models/data-types/#string\">String @format date-time</a>,\nas defined by <a href=\"https://tools.ietf.org/html/rfc3339#section-5.6\">RFC 3339, section 5.6</a>,\nfor example: <code>2014-05-22T10:42:42.542+00:00</code>."
-    format: date-time
-  UUID:
-    type: string
-    description: "<a href=\"https://swagger.io/docs/specification/data-models/data-types/#string\">String @format uuid</a>\n(even '@format uuid' is not specified)."
-    format: uuid
-  MailpieceReadEvent:
-    type: object
-    properties:
-      mailpieceId:
-        type: string
-        description: 'Id of the Mailpiece.'
-        maxLength: 200
-      globalMailpieceId:
-        type: string
-        description: "International ID of the mailpiece.\nExample: EP923689367CH\nValidation:"
-        pattern: '[A-Z]{2}[0-9]{9}[A-Z]{2}'
-      sortCenter:
-        $ref: 'Location'
-        description: "Sort center where the reading ocurred (e.g. Daillens, Haerkingen).\n[DEPRECATED] to be removed as soon as sortingUnit is always filled."
-      processPoint:
-        type: string
-        description: "processPoint containing identification of a coding station / supply line\nThe attribute adheres to the\nBezeichnungskonzept RPZ (RL_RPZ_Bezeichnungskonzept_V04.04.pdf) for new installations of sorting units and yard equipment\nBezeichnungskonzept PP2000 (SOE Bezeichnungskonzept V2.1.pdf) old sorting units based on the standards of program PP2000"
-      concatenatedSupplyLineId:
-        type: string
-        description: "concatenated identification of a coding station / supply line extracted from the PP2000 fields Header.From and ERDAT.Ort\ne.g. \"CLC31+BCR02\"\n[DEPRECATED] to be removed as soon as processPoint is always filled."
-      sortingUnit:
-        $ref: 'SortingUnit'
-        description: "Unique identifier of the sorting unit at a specific location.\nACTION: field will be mandatory"
-        maxLength: 200
-      readingData:
-        $ref: 'ReadingData'
-        description: 'Data captured by the dimension and weighing devices.'
-    required:
-      - readingData
-    additionalProperties: false
-    description: 'Physical attributes, images and barcodes of a mailpiece.'
   MailpieceType:
     type: string
     enum:
@@ -387,6 +213,14 @@ definitions:
         description: '**DEPRECATED** LFT-Status (Legal for Trade) enum'
     additionalProperties: false
     description: 'All the physical properties of a Parcel.'
+  DateTime:
+    type: string
+    description: "<a href=\"https://swagger.io/docs/specification/data-models/data-types/#string\">String @format date-time</a>,\nas defined by <a href=\"https://tools.ietf.org/html/rfc3339#section-5.6\">RFC 3339, section 5.6</a>,\nfor example: <code>2014-05-22T10:42:42.542+00:00</code>."
+    format: date-time
+  UUID:
+    type: string
+    description: "<a href=\"https://swagger.io/docs/specification/data-models/data-types/#string\">String @format uuid</a>\n(even '@format uuid' is not specified)."
+    format: uuid
   ReadEvent:
     type: object
     properties:
@@ -401,6 +235,12 @@ definitions:
       sortCenter:
         $ref: 'Location'
         description: "Sort center where the reading ocurred (e.g. Daillens, Haerkingen).\n[DEPRECATED] to be removed as soon as sortingUnit is always filled."
+      processPoint:
+        type: string
+        description: "processPoint containing identification of a coding station / supply line\nThe attribute adheres to the\nBezeichnungskonzept RPZ (RL_RPZ_Bezeichnungskonzept_V04.04.pdf) for new installations of sorting units and yard equipment\nBezeichnungskonzept PP2000 (SOE Bezeichnungskonzept V2.1.pdf) old sorting units based on the standards of program PP2000"
+      concatenatedSupplyLineId:
+        type: string
+        description: "concatenated identification of a coding station / supply line extracted from the PP2000 fields Header.From and ERDAT.Ort\ne.g. \"CLC31+BCR02\"\n[DEPRECATED] to be removed as soon as processPoint is always filled."
       sortingUnit:
         $ref: 'SortingUnit'
         description: "Unique identifier of the sorting unit at a specific location.\nACTION: field will be mandatory"
@@ -412,27 +252,6 @@ definitions:
       - readingData
     additionalProperties: false
     description: 'Physical attributes, images and barcodes of a mailpiece.'
-  ReadRequest:
-    type: object
-    properties:
-      mailpieceId:
-        type: string
-        description: 'Id of the Mailpiece.'
-        maxLength: 200
-      timestamp:
-        $ref: 'DateTime'
-        description: 'Timestamp when the request was submitted.'
-      requestedMeasurements:
-        $ref: 'RequestedMeasurements'
-        description: 'The requested measurements.'
-      heightToSubtract:
-        $ref: 'Int'
-        description: 'The height in mm which has to be subtracted from the measured value.'
-    required:
-      - timestamp
-      - requestedMeasurements
-    additionalProperties: false
-    description: 'Requests physical properties, images and barcodes of a Mailpiece.'
   ReadingData:
     type: object
     properties:
@@ -476,59 +295,6 @@ definitions:
         $ref: 'UUID'
         description: 'Identifier to track a group of parcels.'
     additionalProperties: false
-  RequestState:
-    type: string
-    enum:
-      - OK
-      - ERROR
-      - PROCESSING
-    description: "OK - The request has  processed successfully\nERROR - The request has been processed and the result was an error.\nPROCESSING - The processing of the request is still ongoing."
-  RequestStatus:
-    type: object
-    properties:
-      timestamp:
-        $ref: 'DateTime'
-        description: 'The timestamp when the request was generated.'
-      state:
-        $ref: 'RequestState'
-        description: 'Processing status of the request.'
-      message:
-        type: string
-        description: "May contain additional information on the status, e.g. error reason\nin case of ERROR. Messages are not meant to be processed\nautomatically but should just be used for problem\ntracking."
-      errorId:
-        $ref: 'Int'
-        description: 'The error ID sent by a device in case of an error.'
-      retryDelayMs:
-        $ref: 'Int'
-        description: 'The delay in milliseconds before a request can be resent in case of an error.'
-      mailpieceId:
-        type: string
-        description: 'Id of the mailpiece.'
-        maxLength: 200
-      images:
-        type: array
-        items:
-          $ref: 'Image'
-        description: 'The images captured during coding.'
-    required:
-      - timestamp
-      - state
-    additionalProperties: false
-    description: 'Status of a request. This is a generic status for multiple request types.'
-  RequestedMeasurements:
-    type: object
-    properties:
-      measureDimensions:
-        type: boolean
-        description: 'Flag whether the dimensions should be measured.'
-      captureImage:
-        type: boolean
-        description: 'Flag whether the image should be taken.'
-    required:
-      - measureDimensions
-      - captureImage
-    additionalProperties: false
-    description: 'Different request types.'
   SortingUnit:
     type: object
     properties:
@@ -540,5 +306,8 @@ definitions:
         type: string
         description: 'Unique key identifying the location.'
         maxLength: 200
+    required:
+      - sortingUnitKey
+      - locationKey
     additionalProperties: false
     description: 'Sorting unit where the mailpiece was being read.'
