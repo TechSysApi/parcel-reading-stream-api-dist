@@ -4,7 +4,7 @@ info:
   description: "The kafka topic exposes ReadingEvent containing data captured at the DWS-Tunnel or by the operator during manual bulk coding like dimension, weighing and image recognition.\n"
   contact:
     name: delcorpochd
-  version: 5.3.0-chore-add-proper-readevent-sample.2
+  version: 5.3.0-chore-add-proper-readevent-sample.3
 host: 'server:8080'
 basePath: Kafka
 paths:
